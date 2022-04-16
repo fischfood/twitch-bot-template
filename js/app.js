@@ -4,6 +4,10 @@ client.connect();
 // Giveaway entries not enabled
 let startGiveaway = false;
 
+let giveawayEmpty = document.getElementById('giveaway-no-entries');
+let giveawayList = document.getElementById('giveaway-list');
+let giveawayEntered = [];
+
 // channel: Your username / channel
 // tags: Information about the user submitting the message
 // 		- Examples: badges, color (username hex color), display-name, first-msg, subscriber, etc.
@@ -23,9 +27,6 @@ client.on('message', (channel, tags, message, self) => {
 	// Get streamer username for comparisons
 	const {username} = tags;
 
-	// Get the container to output messages
-	let output = document.getElementById('output');
-
 	/* END SETUP */
 	/* CHAT MESSAGES START HERE */
 
@@ -33,7 +34,7 @@ client.on('message', (channel, tags, message, self) => {
 	 * 01. Streamer Specific - Only will respond to the person streaming
 	 * 02. Streamer yes/no? - Command that outputs different messages if your are the streamer or not
 	 * 03. Streamer and Moderator specific commands
-	 * 04. Enter into a giveaway
+	 * 04. Giveaway Logic
 	 * 05. Randomized Lurk Messages
 	 */
 
@@ -47,7 +48,6 @@ client.on('message', (channel, tags, message, self) => {
 		}
 
   	}
-
 
   	// 02. Streamer yes/no? - Command that outputs different messages if your are the streamer or not
   	if (message.toLowerCase() === '!whoami') {
@@ -63,18 +63,73 @@ client.on('message', (channel, tags, message, self) => {
   	// 03. Streamer and Moderator specific commands
 	if ( isModUp ) {
     
-		if (message.toLowerCase() === '!startgiveaway') {
-			startGiveaway = true;
+		if (message.toLowerCase() === '!modstuff') {
+			client.say(channel, "You're doing mod things!" );
 		}
+	}
+
 		
-		if (message.toLowerCase() === '!endgiveaway') {
-			startGiveaway = false;
+	if (message.toLowerCase() === '!canido') {
+		if ( isModUp ) {
+			client.say(channel, "Mod? Streamer? Doesn't matter, you have permission" );
+		} else {
+			client.say(channel, "You have no power here!" );
 		}
   	}
 
-  	// 04. If giveaway is active, allow entries
-	if (startGiveaway && message.toLowerCase().startsWith('!enter')) {
-		output.textContent = parseInt( message.match(/\d+/)[0] );
+  	// 04. Giveaway Logic
+  	if ( isModUp ) {
+    
+		if (message.toLowerCase() === '!startgiveaway') {
+
+			if ( startGiveaway ) {
+				client.say(channel, "A giveaway is already open" );
+			} else {
+				startGiveaway = true;
+				client.say(channel, "A giveaway is open for submissions" );
+			}
+		}
+		
+		if (message.toLowerCase() === '!endgiveaway') {
+
+			if ( startGiveaway ) {
+				startGiveaway = false;
+				client.say(channel, "The giveaway is now closed. Good luck!" );
+			} else {
+				client.say(channel, "There is not a giveaway currently open" );
+			}
+		}
+
+		if (startGiveaway === false && message.toLowerCase() === '!cleargiveaway') {
+			giveawayList.innerHTML = '';
+			giveawayEmpty.classList.remove("hide");
+			giveawayEntered = [];
+		}
+  	}
+
+	if ( message.toLowerCase() === ('!enter') ) {
+
+		giveawayEmpty.classList.add("hide");
+
+		console.log( giveawayEntered );
+
+		let user = tags.username
+		
+		if ( startGiveaway ) {
+
+			if ( giveawayEntered.includes( tags.username ) ) {
+				client.say(channel, "Sorry, " + `@${tags.username}` + " you have already entered" );
+			} else {
+				giveawayEntered.push( tags.username );
+				giveawayList.innerHTML += '<li>' + tags.username + '</li>';
+				client.say(channel, `@${tags.username}` + " you are now entered to win" );
+			}
+
+		} else {
+			client.say(channel, "There are no giveaways currently active" );
+		}
+
+		console.log( giveawayEntered );
 	}
 
 

@@ -5,18 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Twitch Chat / Overlay Bot Template</title>
 
-  <style type="text/css" src="css/overlay.css">
-    body, html {
-      margin: 0;
-      padding: 0;
-    }
-  </style>
+  <link rel="stylesheet" src="css/overlay.css" />
 
 </head>
 <body>
   <div>
       <h1 id="gs-num">Twitch Chat and Overlay Bot Template</h1>
-      <div id="output">Output here</div>
+      <div id="giveaway-container">
+        <span id="giveaway-no-entries">No Entries</span>
+        <ol id="giveaway-list">
+        </ol>
+      </div>
   </div>
 
   <script src="library/tmi.min.js"></script>
